@@ -1,0 +1,6 @@
+[build]
+# Uncomment to use a faster linker if available
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[alias]
+xtask = "run --package extractor --release --"

@@ -126,59 +126,146 @@ fn main() {
 
 ## 🔧 Crate Overview
 
-### `english`
+This project is organized as a Cargo workspace with all crates under the `crates/` directory:
+
+```
+english/
+├── Cargo.toml              # Workspace root (virtual manifest)
+├── crates/
+│   ├── english/            # Main public API crate
+│   │   ├── Cargo.toml
+│   │   ├── build.rs        # Generates PHF maps from data files at compile time
+│   │   ├── src/
+│   │   ├── data/           # Pre-generated TSV data files (committed to repo)
+│   │   │   ├── adj_data.tsv
+│   │   │   ├── noun_data.tsv
+│   │   │   └── verb_data.tsv
+│   │   └── examples/
+│   ├── english-core/       # Core inflection engine (pure algorithmic, no data)
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   └── extractor/          # Dev-only Wiktionary processing tool
+│       ├── Cargo.toml
+│       └── src/
+├── .cargo/
+│   └── config.toml         # Cargo aliases (e.g., `cargo xtask`)
+├── publish.sh              # Publish script for crates.io
+├── build_data.sh           # Full data regeneration script
+└── README.md
+```
+
+### `english` (`crates/english/`)
 
 > The public API for verb conjugation and noun/adjective declension.
 
-* Combines optimized data generated from `extractor` with inflection logic from `english-core`
-* Pure Rust, no external dependencies
-* Fast Binary search over pre-sorted arrays: `O(log n)` lookup.
-* Code generation ensures no runtime penalty.
+* Combines optimized PHF (Perfect Hash Function) data with inflection logic from `english-core`
+* Pure Rust, no external runtime dependencies
+* `build.rs` generates PHF lookup maps from TSV data files at compile time
+* `O(1)` lookup for irregular forms via `phf::Map`
+* Data files ship with the crate — consumers just `cargo add english`
 
-### `english-core`
+### `english-core` (`crates/english-core/`)
 
 > The core engine for English inflection — pure algorithmic logic.
 
 * Implements the core rules for conjugation/declension
 * Used to classify forms as regular or irregular for the extractor
 * Has no data dependency — logic-only
-* Can be used stand alone for an even smaller footprint (at the cost of some accuracy)
+* Can be used standalone for an even smaller footprint (at the cost of some accuracy)
 
-### `extractor`
+### `extractor` (`crates/extractor/`)
 
-> A tool to process and refine Wiktionary data.
+> A dev-only tool to process and refine Wiktionary data.
 
-* Parses large English Wiktionary dumps
+* Parses large English Wiktionary JSONL dumps
 * Extracts all verb, noun, and adjective forms
 * Uses `english-core` to filter out regular forms, preserving only irregulars
-* Generates sorted static arrays for use in `english`
+* Generates TSV data files consumed by `english`'s `build.rs`
 
 ---
 
-## 📦 Obtaining Wiktionary Data & Running the Extractor
+## 🏗️ Building from Source
 
-This project relies on raw data extracted from Wiktionary. Current version built with data from 8/17/2025.
+### Prerequisites
 
-- [Wiktextract (GitHub)](https://github.com/tatuylonen/wiktextract)
-- [Kaikki.org raw data](https://kaikki.org/dictionary/rawdata.html)
+* [Rust](https://www.rust-lang.org/tools/install) (edition 2024, MSRV 1.85+)
 
-### Steps
+### Quick Start (just build and test)
 
-1. Download the **raw Wiktextract JSONL dump** (~20 GB) from [Kaikki.org](https://kaikki.org/dictionary/rawdata.html).
-2. Place the file somewhere accessible (e.g. `../rawwiki.jsonl`).
-3. From the `extractor` folder, run: `cargo run --release ../rawwiki.jsonl`
-4. Move the generated files adj_array.rs, noun_array.rs, verb_array.rs into the /src of english
+The pre-generated data files are committed to the repo, so you can build immediately:
+
+```bash
+# Clone the repo
+git clone https://github.com/gold-silver-copper/english.git
+cd english
+
+# Build the entire workspace
+cargo build --workspace
+
+# Run all tests (including doctests)
+cargo test --workspace
+
+# Run the benchmark example
+cargo run --example speedmark -p english --release
+
+# Build documentation
+cargo doc --workspace --no-deps --open
+```
+
+### Full Data Regeneration (optional)
+
+If you want to regenerate the inflection data from a fresh Wiktionary dump, use the provided `build_data.sh` script or follow the manual steps below.
+
+#### Using the build script
+
+```bash
+# Download Wiktionary data, run extractor, regenerate TSV files, build and test
+./build_data.sh
+```
+
+#### Manual steps
+
+1. **Download the raw Wiktextract JSONL dump** (~20 GB) from [Kaikki.org](https://kaikki.org/dictionary/rawdata.html):
+   ```bash
+   wget -O rawwiki.jsonl.bz2 "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.bz2"
+   bunzip2 rawwiki.jsonl.bz2
+   ```
+   Or download it directly from the website if the URL has changed.
+
+2. **Run the extractor** to process the dump and generate new data files:
+   ```bash
+   cargo xtask rawwiki.jsonl
+   # This is an alias for: cargo run --package extractor --release -- rawwiki.jsonl
+   ```
+
+3. **Rebuild the workspace** — `build.rs` will pick up the updated TSV files:
+   ```bash
+   cargo build --workspace
+   ```
+
+4. **Run tests** to verify everything still works:
+   ```bash
+   cargo test --workspace
+   ```
+
+### Project Links
+
+- [Wiktextract (GitHub)](https://github.com/tatuylonen/wiktextract) — the tool that produces the JSONL dumps
+- [Kaikki.org raw data](https://kaikki.org/dictionary/rawdata.html) — pre-built JSONL dumps
+- Current version built with data from 8/17/2025
+
+---
 
 ## Benchmarks
-Performance benchmarks were run on my M2 Macbook.
+Performance benchmarks were run on an M2 Macbook.
 
-Writing benchmarks and tests for such a project is rather difficult and requires opinionated decisions. Many words may have alternative inflections, and the data in wiktionary is not perfect. Many words might be both countable and uncountable, the tagging of words may be inconsistent. This library includes a few uncountable words in its dataset, but not all. Uncountable words require special handling anyway. Take all benchmarks with a pound of salt, write your own tests for your own usecases. Any suggestions to improve the benchmarking are highly appreciated.
+Writing benchmarks and tests for such a project is rather difficult and requires opinionated decisions. Many words may have alternative inflections, and the data in Wiktionary is not perfect. Many words might be both countable and uncountable, the tagging of words may be inconsistent. This library includes a few uncountable words in its dataset, but not all. Uncountable words require special handling anyway. Take all benchmarks with a grain of salt, write your own tests for your own use cases. Any suggestions to improve the benchmarking are highly appreciated.
 
 ## Disclaimer
-Wiktionary data is often unstable and subject to weird changes. This means that the provided inflections may change unexpectedly. You can look at the diffs of *_array.rs files for a source of truth.
+Wiktionary data is often unstable and subject to unexpected changes. This means that the provided inflections may change across data updates. You can look at the diffs of the TSV data files in `crates/english/data/` for a source of truth.
 
 ## Inspirations and Thanks
-- Ole in the bevy discord suggested I use ```phf``` instead of sorted arrays, this resulted in up to 40% speedups
+- Ole in the bevy discord suggested I use `phf` instead of sorted arrays, this resulted in up to 40% speedups
 - https://github.com/atteo/evo-inflector
 - https://github.com/plurals/pluralize
 
