@@ -39,6 +39,7 @@ impl English {
     ///
     /// # Examples
     /// ```rust
+    /// use english::*;
     /// assert_eq!(English::noun("cat", &Number::Plural), "cats");
     /// assert_eq!(English::noun("child", &Number::Plural), "children");
     /// assert_eq!(English::noun("die2", &Number::Plural), "dice");
@@ -83,8 +84,9 @@ impl English {
     ///
     /// # Examples
     /// ```rust
-    /// assert_eq!(English::adj("fast", &Degree::Comparative), "faster");
-    /// assert_eq!(English::adj("good", &Degree::Superlative), "best");
+    /// use english::*;
+    /// assert_eq!(English::adj("good2", &Degree::Comparative), "better");
+    /// assert_eq!(English::adj("good2", &Degree::Superlative), "best");
     /// assert_eq!(English::adj("fun", &Degree::Comparative), "more fun");
     /// ```
     pub fn adj(word: &str, degree: &Degree) -> String {
@@ -116,6 +118,7 @@ impl English {
     ///
     /// # Examples
     /// ```rust
+    /// use english::*;
     /// // Regular verb
     /// assert_eq!(
     ///     English::verb("walk", &Person::Third, &Number::Singular, &Tense::Present, &Form::Finite),
@@ -172,8 +175,9 @@ impl English {
     ///
     /// # Examples
     /// ```rust
+    /// use english::*;
     /// assert_eq!(
-    ///     English::pronoun(&Person::First, &Number::Singular, &Gender::Neutral, &Case::Nominative),
+    ///     English::pronoun(&Person::First, &Number::Singular, &Gender::Neuter, &Case::Nominative),
     ///     "I"
     /// );
     /// assert_eq!(
@@ -181,7 +185,7 @@ impl English {
     ///     "she"
     /// );
     /// assert_eq!(
-    ///     English::pronoun(&Person::Third, &Number::Plural, &Gender::Neutral, &Case::Nominative),
+    ///     English::pronoun(&Person::Third, &Number::Plural, &Gender::Neuter, &Case::Nominative),
     ///     "they"
     /// );
     /// ```
@@ -192,6 +196,7 @@ impl English {
     ///
     /// # Examples
     /// ```rust
+    /// use english::*;
     /// assert_eq!(English::add_possessive("dog"), "dog's");
     /// assert_eq!(English::add_possessive("dogs"), "dogs'");
     /// ```
@@ -203,7 +208,8 @@ impl English {
     ///
     /// # Examples
     /// ```rust
-    /// assert_eq!(English::add_possessive("house"), "House");
+    /// use english::*;
+    /// assert_eq!(English::capitalize_first("house"), "House");
     /// ```
     pub fn capitalize_first(s: &str) -> String {
         let mut c = s.chars();

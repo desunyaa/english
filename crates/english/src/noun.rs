@@ -5,8 +5,9 @@ use crate::*;
 ///
 /// # Examples
 /// ```
+/// use english::*;
 ///  let jeans = Noun::from("pair").with_complement("of jeans");
-///  assert_eq!(English::count_with_number(jeans, 3), "3 pairs of jeans");
+///  assert_eq!(Noun::count_with_number(jeans, 3), "3 pairs of jeans");
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Noun {
@@ -28,8 +29,9 @@ impl Noun {
     /// Goes before the head of the noun
     /// # Examples
     /// ```
+    /// use english::*;
     ///  let child = Noun::from("child").with_specifier("running");
-    ///  assert_eq!(English::count_with_number(child, 3), "3 running children");
+    ///  assert_eq!(Noun::count_with_number(child, 3), "3 running children");
     /// ```
     pub fn with_specifier(mut self, pre: impl Into<String>) -> Self {
         self.modifier = Some(pre.into());
@@ -39,8 +41,9 @@ impl Noun {
     /// Goes after the head of the noun
     /// # Examples
     /// ```
+    /// use english::*;
     ///  let jeans = Noun::from("pair").with_complement("of jeans");
-    ///  assert_eq!(English::count_with_number(jeans, 3), "3 pairs of jeans");
+    ///  assert_eq!(Noun::count_with_number(jeans, 3), "3 pairs of jeans");
     /// ```
     pub fn with_complement(mut self, post: impl Into<String>) -> Self {
         self.complement = Some(post.into());
@@ -53,8 +56,9 @@ impl Noun {
     ///
     /// # Examples
     /// ```rust
-    /// assert_eq!(English::count("cat", 1), "cat");
-    /// assert_eq!(English::count("cat", 2), "cats");
+    /// use english::*;
+    /// assert_eq!(Noun::count("cat", 1), "cat");
+    /// assert_eq!(Noun::count("cat", 2), "cats");
     /// ```
     pub fn count<T: Into<Noun>>(word: T, count: u32) -> String {
         if count == 1 {
@@ -68,8 +72,9 @@ impl Noun {
     ///
     /// # Examples
     /// ```rust
-    /// assert_eq!(English::count_with_number("cat", 1), "1 cat");
-    /// assert_eq!(English::count_with_number("cat", 2), "2 cats");
+    /// use english::*;
+    /// assert_eq!(Noun::count_with_number("cat", 1), "1 cat");
+    /// assert_eq!(Noun::count_with_number("cat", 2), "2 cats");
     /// ```
     pub fn count_with_number<T: Into<Noun>>(word: T, count: u32) -> String {
         format!("{} {}", count, Noun::count(word, count))
@@ -79,8 +84,9 @@ impl Noun {
     ///
     /// # Examples
     /// ```
-    /// assert_eq!(English::plural("child"), "children");
-    /// assert_eq!(English::plural("cat"), "cats");
+    /// use english::*;
+    /// assert_eq!(Noun::plural("child"), "children");
+    /// assert_eq!(Noun::plural("cat"), "cats");
     /// ```
     pub fn plural<T: Into<Noun>>(word: T) -> String {
         English::noun(word, &Number::Plural)
@@ -90,7 +96,8 @@ impl Noun {
     ///
     /// # Examples
     /// ```
-    /// assert_eq!(English::singular("cat2"), "cat");
+    /// use english::*;
+    /// assert_eq!(Noun::singular("cat2"), "cat");
     /// ```
     pub fn singular<T: Into<Noun>>(word: T) -> String {
         English::noun(word, &Number::Singular)
