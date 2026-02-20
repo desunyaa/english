@@ -1,0 +1,17 @@
+[package]
+name = "english"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+include = ["LICENSE-APACHE", "LICENSE-MIT", "**/*.rs", "Cargo.toml", "data/**"]
+description = "English inflector decliner conjugator from wiktionary data"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+english-core.workspace = true
+phf.workspace = true

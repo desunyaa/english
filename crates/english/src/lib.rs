@@ -7,12 +7,12 @@ mod verb;
 pub use verb::*;
 mod adj;
 pub use adj::*;
-mod noun_phf;
-use noun_phf::*;
-mod adj_phf;
-use adj_phf::*;
-mod verb_phf;
-use verb_phf::*;
+
+use phf::phf_map;
+
+include!(concat!(env!("OUT_DIR"), "/noun_phf.rs"));
+include!(concat!(env!("OUT_DIR"), "/adj_phf.rs"));
+include!(concat!(env!("OUT_DIR"), "/verb_phf.rs"));
 
 fn strip_trailing_number(word: &str) -> String {
     if let Some(last_char) = word.chars().last() {
