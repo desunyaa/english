@@ -227,7 +227,7 @@ If you want to regenerate the inflection data from a fresh Wiktionary dump, use 
 
 1. **Download the raw Wiktextract JSONL dump** (~20 GB) from [Kaikki.org](https://kaikki.org/dictionary/rawdata.html):
    ```bash
-   wget -O rawwiki.jsonl "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.bz2"
+   wget -O rawwiki.jsonl.bz2 "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.bz2"
    bunzip2 rawwiki.jsonl.bz2
    ```
    Or download it directly from the website if the URL has changed.
